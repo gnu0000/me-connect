@@ -1,0 +1,121 @@
+@echo off
+setlocal
+
+rem set key1=c:\users\craig\.ssh\id_rsa
+rem set usr1=ch182058
+rem 
+rem set key2=c:\users\craig\.ssh\trivox.pem
+rem set usr2=ec2-user
+rem 
+rem set key3=c:\users\craig\.ssh\aws.pem
+rem set usr3=ec2-user
+rem 
+rem set key4=c:\users\craig\.ssh\TestInstance.pem
+rem set usr4=ec2-user
+
+set key4=c:\users\craig\.ssh\id_rsa
+set usr4=ec2-user
+
+rem 
+rem set key5=c:\users\craig\.ssh\Test4.pem
+rem set usr5=ubuntu
+rem 
+rem set key6=c:\users\craig\.ssh\helpstepsDemo.pem
+rem set usr6=ec2-user
+rem 
+rem set key7=c:\users\craig\.ssh\jenkins.pem
+rem set usr7=ec2-user
+
+iff "%1" eq "" then 
+   goto usage
+elseiff "%2" eq "" then
+   set server=0
+   set file=%1
+   gosub getserverchoice
+else
+   set server=%1
+   set file=%2
+endiff
+
+iff "%3" ne "" then 
+   set destdir=%3
+else
+   set destdir=/tmp/
+endiff
+
+gosub getcommand
+if "%command" eq "" goto exit
+echo %command
+%command
+goto exit
+
+:listserverchoice
+   echo  ---------------------------------------------------------------------------------------
+rem   echo  [1   or prod        ] www.trivoxhealth.com       Main production site       (BCH ext)
+rem   echo  [2   or ext         ] ext.trivoxhealth.com       External production site   (AWS)
+rem   echo  [3   or demo3       ] demo3.trivoxhealth.com     Bleeding edge site         (AWS)
+rem   echo  [4   or dev         ] dev.trivoxhealth.com       Test site                  (BCH int)
+rem   echo  [5   or sandbox     ] sandbox.trivoxhealth.com   Demo site                  (AWS)
+rem   echo  [6   or bch         ] bch.trivoxhealth.com       Cerner integration site    (AWS)
+rem   echo  [7   or edmc        ] edmcintake.tch.harvard.edu eDMCIntake site            (BCH int)
+rem   echo  [8   or proddb      ] www.trivoxhealth.com DB    Production db site         (BCH ext)
+rem   echo  [9   or bkup        ] trivox-prod-backup         Production db backup site  (BCH int)
+rem   echo  [b   or hsbeta      ] beta.helpsteps.com         Helpsteps Beta site        (AWS)
+rem   echo  [c   or helpsteps   ] helpsteps.com              Helpsteps production site  (AWS)
+rem   echo  [hdb or helpsteps-db] helpsteps db               Helpsteps database         (BCH ext?)
+rem   echo  [h   or hsdemo      ] demo2.helpsteps.com        Helpsteps Demo site        (???)
+rem   echo  [i   or iciss-dev   ] iciss-dev.tch.harvard.edu  Helpsteps dev site ???     (BCH int)
+rem   echo  [j   or jenkins     ] jenkins.trivoxhealth.com   ci site                    (AWS)
+rem   echo  [k   or content     ] content.trivoxhealth.com   content site               (AWS)
+rem   echo  [ph  or prodhelp    ] prod.helpsteps.com         Another Helpsteps site     (BCH ext?)
+rem   echo  [s   or staging     ] staging.trivoxhealth.com   Cerner integration site    (AWS)
+rem   echo  [o   or toa-dev     ] toa-dev.tch.harvard.edu    Helpsteps dev site         (BCH int)
+   echo  [cf  or craigfitz   ] craig-fitzgerald.com       personal ec2 test instance (AWS)
+   echo  [cf0 or craigfitz0  ] craig-fitzgerald.com       (using AWS dns name)       (AWS)
+   echo  [0   or exit        ] exit
+   echo  ---------------------------------------------------------------------------------------
+return
+
+
+:getserverchoice
+   gosub listserverchoice
+   input  Get file from which server: %%choice
+   set server=%choice
+return
+
+:getcommand
+   set command=
+   iff     "%server" eq "0"   .or. "%server" eq "exit"         then echo  Exit
+rem   elseiff "%server" eq "1"   .or. "%server" eq "prod"         then set command=scp.exe -i %key1 %usr1@iciss-bch-proxy1.tch.harvard.edu:%destdir%%file .
+rem   elseiff "%server" eq "2"   .or. "%server" eq "ext"          then set command=scp.exe -i %key2 %usr2@ext.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "3"   .or. "%server" eq "demo3"        then set command=scp.exe -i %key3 %usr3@demo3.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "4"   .or. "%server" eq "dev"          then set command=scp.exe -i %key1 %usr1@dev.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "5"   .or. "%server" eq "sandbox"      then set command=scp.exe -i %key3 %usr3@sandbox.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "6"   .or. "%server" eq "bch"          then set command=scp.exe -i %key3 %usr3@bch.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "7"   .or. "%server" eq "edmc"         then set command=scp.exe -i %key1 %usr1@edmcintake.tch.harvard.edu:%destdir%%file .
+rem   elseiff "%server" eq "8"   .or. "%server" eq "proddb"       then set command=scp.exe -i %key1 %usr1@iciss-bch-update1.tch.harvard.edu:%destdir%%file .
+rem   elseiff "%server" eq "9"   .or. "%server" eq "bkup"         then set command=scp.exe -i %key1 %usr1@trivox-prod-backup.tch.harvard.edu:%destdir%%file .
+rem   elseiff "%server" eq "b"   .or. "%server" eq "hsbeta"       then set command=scp.exe -i %key6 %usr6@beta.helpsteps.com:%destdir%%file .
+rem   elseiff "%server" eq "c"   .or. "%server" eq "helpsteps"    then set command=scp.exe -i %key1 %usr1@helpsteps-prod:%destdir%%file .
+rem   elseiff "%server" eq "hdb" .or. "%server" eq "helpsteps-db" then set command=scp.exe -i %key1 %usr1@helpsteps-db:%destdir%%file .
+rem   elseiff "%server" eq "h"   .or. "%server" eq "hsdemo"       then set command=scp.exe -i %key6 %usr6@demo2.helpsteps.com:%destdir%%file .
+rem   elseiff "%server" eq "i"   .or. "%server" eq "iciss-dev"    then set command=scp.exe -i %key1 %usr1@iciss-dev.tch.harvard.edu:%destdir%%file .
+rem   elseiff "%server" eq "j"   .or. "%server" eq "jenkins"      then set command=scp.exe -i %key3 %usr7@jenkins.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "k"   .or. "%server" eq "content"      then set command=scp.exe -i %key3 %usr3@content.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "ph"  .or. "%server" eq "prodhelp"     then set command=scp.exe -i %key1 %usr1@prod.helpsteps.com:%destdir%%file .
+rem   elseiff "%server" eq "s"   .or. "%server" eq "staging"      then set command=scp.exe -i %key3 %usr3@staging.trivoxhealth.com:%destdir%%file .
+rem   elseiff "%server" eq "o"   .or. "%server" eq "toa-dev"      then set command=scp.exe -i %key1 %usr1@toa-dev.tch.harvard.edu:%destdir%%file .
+   elseiff "%server" eq "cf"  .or. "%server" eq "craigfitz"    then set command=scp.exe -i %key4 %usr4@craig-fitzgerald.com:%destdir%%file .
+   elseiff "%server" eq "cf0" .or. "%server" eq "craigfitz0"   then set command=scp.exe -i %key4 %usr4@ec2-34-210-212-40.us-west-2.compute.amazonaws.com:%destdir%%file .
+   else echo  Unknown choice: %server
+   endiff
+return
+
+:usage
+   gosub listserverchoice
+   echo get.btm - download a file from the /tmp dir of a server
+   echo .
+   echo usage: get [file]
+   echo    or: get [server] [file]
+:exit
+endlocal
